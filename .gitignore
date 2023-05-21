@@ -1,5 +1,6 @@
 # nao realizar o upload para o github das seguintes pastas 
 **/.ipynb_checkpoints/
+**/__pycache__/
 *__pycache__*
 .vscode/
 build/
