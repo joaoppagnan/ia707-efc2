@@ -182,10 +182,113 @@ A \textbf{geração da população inicial} será da forma indicada no processo 
     \label{alg:pop-inicial}
 \end{brprocess}
 
-A função de avaliação, ou \fitness, adotada é a própria função que deseja-se maximizar. Desta forma, ela é dada por:
+No caso, o primeiro alelo do cromossomo se refere à variável $x$ e o segundo à variável $y$.
+
+\textbf{Observação:} Como o algoritmo genético será implementado em \Python, foi considerado que a coordenadas dos elementos dos vetores se iniciam em 0.
+
+Na segunda etapa do algoritmo genético tem-se o \textbf{cálculo do valor da função de avaliação}. No caso, a função de avaliação, ou \fitness, adotada é a própria função que deseja-se maximizar. Dessa forma, o cálculo é dado por:
 \begin{equation}\label{eq:fitness}
     \phi(\bm{z}) = \phi(x, y) = x \cdot \sen(4\pi \cdot x) - y \cdot \sen(4\pi \cdot y + \pi) + 1
 \end{equation}
+
+Com isso, o processo que define o cálculo do \fitness é descrito da forma indicada no processo \ref{alg:fitness}.
+\begin{brprocess}[!ht]
+\textbf{Entradas}: população\\
+\textbf{Saída}: população com os valores de \fitness atualizado
+\cprotect\caption{Cálculo do \fitness (\verb|calc_fitness(populacao)|)}
+\begin{algorithmic}
+\For{indivíduo \textbf{em} população}
+    \If{indivíduo[1] = 0}
+        \State{$x =$ indivíduo$[0][0]$}
+        \State{$y =$ indivíduo$[0][1]$}
+        \State{\fitness = $x \cdot \sen(4\pi \cdot x) - y \cdot \sen(4\pi \cdot y + \pi) + 1$}
+        \State indivíduo[1] = \fitness
+    \EndIf
+\EndFor
+\State \textbf{retorna} população
+\end{algorithmic}
+\label{alg:fitness}
+\end{brprocess}
+
+Na terceira etapa, o GA aplica o \textbf{operador de seleção por torneio} na população. Esse método utiliza o parâmetro $q$, que é igual à quantidade de indivíduos da população selecionados por torneio. Esse método é executado duas vezes no algoritmo genético, de forma a determinar dois pais para a recombinação e é descrito pelo processo \ref{alg:selecao}.
+\begin{brprocess}[!ht]
+    \cprotect\caption{Operador de seleção por torneio (\verb|selecao_torneio(populacao,|
+    \verb|N, q_torneio)|}
+    \textbf{Entrada:} população\\
+    \textbf{Parâmetros}: quantidade de indivíduos da população selecionados por torneio e tamanho da população inicial\\
+    \textbf{Saída}: o melhor indivíduo escolhido no torneio
+    \begin{algorithmic}
+            \State $i \gets 0$
+            \State indivíduos participantes $\gets [\;]$
+            \While{$i < q$}
+                \State índice indivíduo selecionado $\gets n \in \{0, 1, ..., N - 1\}$
+                \State indivíduos participantes $[i] \gets$ população [índice indivíduo selecionado]
+                \State $i \gets i + 1$
+            \EndWhile
+            \State índice do melhor indivíduo $\gets$ indivíduos participantes[\verb|argmax|(indivíduos participantes [:,1]])
+            \State melhor indivíduo $\gets$ indivíduos participantes[índice do melhor indivíduo]
+            \State \textbf{retorna} melhor indivíduo
+    \end{algorithmic}
+    \label{alg:selecao}
+\end{brprocess}
+
+Este operador foi escolhido por possibilitar o ajuste da pressão seletiva na população através do parâmetro $q$.
+
+Em seguida, na quarta etapa, o \textbf{operador de recombinação} escolhido foi o método de \textit{crossover} aritmético. Nele, os filhos gerados resultam de uma combinação linear dois pais. Esse método foi escolhido por ser bem apropriado para problemas de otimização numérica com restrições onde a região factível é convexa. Esse é o caso para o problema que deseja-se resolver.
+
+Sendo $P1$ e $P2$ os pais e $D1$ e $D2$ os descendentes, esse método é descrito pelo processo \ref{alg:recombinacao}.
+\begin{brprocess}[!ht]
+    \cprotect\caption{Operador de recombinação (\verb|crossover_aritmetico(cromossomo_p1,|
+    \verb|cromossomo_p2,| \verb|min,| \verb|max|)}
+    \textbf{Entrada}: cromossomo dos dois pais, mínimo e máximo do espaço de busca\\
+    \textbf{Saída}: cromossomo de ambos os filhos
+    \begin{algorithmic}
+        \State $i \gets 0$
+        \State descendentes $\gets [\;]$
+        \State $a \gets \text{número aleatório} \in [0, 1]$
+        \While{$i < 2$}
+            \If{$i = 0$}
+                \State \text{filho}$_1 \gets a \cdot \text{pai}_1 + (1 - a) \cdot \text{pai}_2$
+                \State $i \gets i + 1$
+            \EndIf
+            \If{$i = 1$}
+                \State \text{filho}$_1 \gets (1 - a) \cdot \text{pai}_1 + a \cdot \text{pai}_2$
+                \State $i \gets i + 1$
+            \EndIf
+        \EndWhile
+        \State \textbf{retorna} descendentes
+    \end{algorithmic}
+    \label{alg:recombinacao}
+\end{brprocess}
+
+Por fim, resta detalhar o \textbf{operador de mutação} utilizado. Neste caso, foi escolhido a \textbf{mutação uniforme}, que consiste em pegar uma fração do intervalo de busca, que chamaremos de $f_m$, e, a partir disso, será determinado o intervalo da distribuição $r = f_m \cdot (max-min)$, de forma que a distribuição uniforme é dada por $U(-r,r)^l$.
+
+O processo pode ser descrito da forma indicada no processo \ref{alg:mutacao}.
+\begin{brprocess}[!ht]
+    \cprotect\caption{Operador de mutação (\verb|mutacao_uniforme(cromossomo,|
+    \verb|p_mutacao,|\verb|f_mutacao,| \verb|min,| \verb|max|)}
+    \textbf{Entrada}: cromossomo a ser mutado e valores mínimo e máximo do espaço de busca\\
+    \textbf{Parâmetros}: probabilidade da mutação ocorrer e fator de mutação que vai determinar um intervalo em que o gene pode ser mutado\\
+    \textbf{Saída}: cromossomo mutado
+    \begin{algorithmic}
+        \State $i \gets 0$
+        \State{número $\gets k \in \{0, ..., p_m\, ..., 1\}, k \in \mathbb{R}$}
+        \For{i \textbf{em} len(cromossomo)}
+            \If{indivíduo[1] = 0}
+                \State{range-mutacao $\gets (max - min)\cdot f_m$}
+                \State {valor-mutacao $\gets r \in \{$-range-mutacao, range-mutacao$\}, r \in \mathbb{R}$}
+                \State {cromossomo[i] $\gets$ cromossomo[i] + valor-mutacao}
+                \If{cromossomo[i]$<$ min}
+                    \State {cromossomo[i] $\gets$ min}
+                \EndIf
+                \If{cromossomo[i]$>$ max}
+                    \State {cromossomo[i] $\gets$ max}
+                \EndIf
+            \EndIf
+        \EndFor
+    \end{algorithmic}
+    \label{alg:mutacao}
+\end{brprocess}
 
 \textbf{(b) Para cada uma de 5 execuções independentes do AG, apresente as curvas de \fitness médio e de \fitness do melhor indivíduo em função do número de gerações. Mostre também, tendo por pano de fundo as curvas de nível da função $f(x, y)$, a distribuição dos indivíduos da população final em cada execução. Com base nesse conjunto de gráficos, busque analisar o algoritmo em termos de sua eficiência de busca e manutenção de diversidade.}
 

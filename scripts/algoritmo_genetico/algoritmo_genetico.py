@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.io
 from gerar_pop import gerar_pop
-from calc_fitness_qap import calc_fitness_qap
+from calc_fitness import calc_fitness_qap
 from selecao_torneio import selecao_torneio
 from recombinacao_ox import recombinacao_ox
 from mutacao_reversao import mutacao_reversao
