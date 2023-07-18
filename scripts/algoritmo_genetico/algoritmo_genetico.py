@@ -4,7 +4,7 @@ from gerar_pop import gerar_pop
 from calc_fitness import calc_fitness_qap
 from selecao_torneio import selecao_torneio
 from recombinacao_crossover_aritmetico import recombinacao_ox
-from mutacao_reversao import mutacao_reversao
+from mutacao_uniforme import mutacao_reversao
 from gerar_grafico import gerar_grafico
 
 
