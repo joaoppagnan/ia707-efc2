@@ -5,7 +5,7 @@ from calc_fitness import calc_fitness
 from selecao_torneio import selecao_torneio
 from recombinacao_crossover_aritmetico import recombinacao_crossover_aritmetico
 from mutacao_uniforme import mutacao_uniforme
-from gerar_grafico import gerar_grafico_fitness
+from gerar_grafico import gerar_grafico_fitness, gerar_grafico_curvas
 
 
 def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: int, p_mutacao: float,
@@ -61,19 +61,26 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
             # atualiza os fitness
             populacao = calc_fitness(populacao)
 
-            # atualiza o array
-            dados_fitness[n_geracao, 0] = np.mean(populacao[:, 1])  # fitness medio
-            dados_fitness[n_geracao, 1] = np.max(populacao[:, 1])  # melhor fitness
-
         # elimina os N individuos de menor fitness
         populacao = populacao[populacao[:, 1].argsort()][n_populacao:len(populacao)]
 
-    # gera o grafico
+        # atualiza o array
+        dados_fitness[n_geracao, 0] = np.mean(populacao[:, 1])  # fitness medio
+        dados_fitness[n_geracao, 1] = np.max(populacao[:, 1])  # melhor
+
+    # gera o grafico do fitness
     titulo = r"Curvas de $fitness$ médio e máximo para a realização " + str(realizacao+1) +\
              "\n do algoritmo genético"
-    nome_do_arquivo = "realizacao-" + str(realizacao+1) + ".pdf"
+    nome_do_arquivo = "fitness-realizacao-" + str(realizacao+1) + ".pdf"
     legenda = [r"$Fitness$ médio", r"$Fitness$ máximo"]
     gerar_grafico_fitness(dados=dados_fitness, titulo=titulo, eixo_x="Geração", eixo_y=r"\it{Fitness}",
-                  nome_do_arquivo=path_graficos+nome_do_arquivo, legenda=legenda)
+                          nome_do_arquivo=path_graficos+nome_do_arquivo, legenda=legenda)
+
+    # gera o grafico das curvas de nível
+    titulo = r"Distribuição da população final sobre as curvas de nível de $f(x, y)$"
+    nome_do_arquivo = "distribuicao-realizacao-" + str(realizacao+1) + ".pdf"
+    legenda = ["Curvas de nível", "População"]
+    gerar_grafico_curvas(dados=populacao, titulo=titulo, eixo_x="$x$", eixo_y="$y$", legenda=legenda,
+                         nome_do_arquivo=path_graficos+nome_do_arquivo)
 
     return populacao[-1]
