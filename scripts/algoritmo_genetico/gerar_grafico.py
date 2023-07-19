@@ -61,9 +61,9 @@ def gerar_grafico_curvas(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: st
     fig, ax = plt.subplots(nrows=1, ncols=1, tight_layout=True, figsize=(6, 4))
 
     # gera as curvas de nível da função
-    x, y = np.meshgrid(np.linspace(-1, 2, 5000), np.linspace(-1, 2, 1000))
+    x, y = np.meshgrid(np.linspace(-1, 2, 1000), np.linspace(-1, 2, 1000))
     f = x*np.sin(4*np.pi*x) - y*np.sin(4*np.pi*y + np.pi) + 1
-    niveis = np.linspace(f.min(), f.max(), 100)
+    niveis = np.linspace(f.min(), f.max(), 20)
 
     # desenha as curvas de nível
     ax.contourf(x, y, f, levels=niveis, cmap='jet')

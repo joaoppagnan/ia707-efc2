@@ -2,7 +2,7 @@ import numpy as np
 from algoritmo_genetico import algoritmo_genetico
 
 
-N_POPULACAO = 100
+N_POPULACAO = 500
 CRITERIO_DE_PARADA = 20
 Q_TORNEIO = 5
 P_MUTACAO = 0.2
