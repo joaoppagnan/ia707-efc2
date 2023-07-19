@@ -77,7 +77,8 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
                           nome_do_arquivo=path_graficos+nome_do_arquivo, legenda=legenda)
 
     # gera o grafico das curvas de nível
-    titulo = r"Distribuição da população final sobre as curvas de nível de $f(x, y)$"
+    titulo = r"Distribuição da população final sobre as curvas de nível de $f(x, y)$" +\
+             "\n para a realização " + str(realizacao+1) + " do algoritmo genético"
     nome_do_arquivo = "distribuicao-realizacao-" + str(realizacao+1) + ".pdf"
     legenda = ["Curvas de nível", "População"]
     gerar_grafico_curvas(dados=populacao, titulo=titulo, eixo_x="$x$", eixo_y="$y$", legenda=legenda,
