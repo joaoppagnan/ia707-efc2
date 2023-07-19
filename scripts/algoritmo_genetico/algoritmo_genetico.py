@@ -5,7 +5,7 @@ from calc_fitness import calc_fitness
 from selecao_torneio import selecao_torneio
 from recombinacao_crossover_aritmetico import recombinacao_crossover_aritmetico
 from mutacao_uniforme import mutacao_uniforme
-from gerar_grafico import gerar_grafico
+from gerar_grafico import gerar_grafico_fitness
 
 
 def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: int, p_mutacao: float,
@@ -34,7 +34,7 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
 
     # calcula para a população inicial
     dados_fitness[0, 0] = np.mean(populacao[:, 1])  # fitness medio
-    dados_fitness[0, 1] = np.max(populacao[:, 2])  # melhor fitness
+    dados_fitness[0, 1] = np.max(populacao[:, 1])  # melhor fitness
 
     # entra no loop principal do algoritmo
     for n_geracao in range(1, criterio_de_parada):
@@ -56,7 +56,7 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
                                                   a=limite_inferior, b=limite_superior)
 
             # adiciona os descendentes na população
-            populacao = np.append(populacao, descendentes, axis=0)
+            populacao = np.vstack((populacao, np.array(descendentes, dtype=object)))
 
             # atualiza os fitness
             populacao = calc_fitness(populacao)
@@ -69,11 +69,11 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
         populacao = populacao[populacao[:, 1].argsort()][n_populacao:len(populacao)]
 
     # gera o grafico
-    titulo = "Curvas de \textit{fitness} médio e máximo para a realização " + str(realizacao+1) +\
-             " do algoritmo genético"
+    titulo = r"Curvas de $fitness$ médio e máximo para a realização " + str(realizacao+1) +\
+             "\n do algoritmo genético"
     nome_do_arquivo = "realizacao-" + str(realizacao+1) + ".pdf"
-    legenda = ["\textit{Fitness} médio", "\textit{Fitness} máximo"]
-    gerar_grafico(dados=dados_fitness, titulo=titulo, eixo_x="Geração", eixo_y="\textit{Fitness}",
+    legenda = [r"$Fitness$ médio", r"$Fitness$ máximo"]
+    gerar_grafico_fitness(dados=dados_fitness, titulo=titulo, eixo_x="Geração", eixo_y=r"\it{Fitness}",
                   nome_do_arquivo=path_graficos+nome_do_arquivo, legenda=legenda)
 
     return populacao[-1]

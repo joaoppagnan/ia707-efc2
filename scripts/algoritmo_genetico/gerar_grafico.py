@@ -13,9 +13,10 @@ plt.rcParams.update({
 })
 
 
-def gerar_grafico(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: str, legenda: list, nome_do_arquivo: str):
+def gerar_grafico_fitness(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: str,
+                          legenda: list, nome_do_arquivo: str):
     """
-    Função para gerar um gráfico com os dados passados
+    Função para gerar um gráfico do fitness com os dados passados
     :param dados: dados a serem plotados
     :param titulo: título do gráfico
     :param eixo_x: nome do eixo x
@@ -26,11 +27,11 @@ def gerar_grafico(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: str, lege
     fig, ax = plt.subplots(nrows=1, ncols=1, tight_layout=True, figsize=(6, 4))
     dado_x = np.arange(0, len(dados[:, 0]), dtype=int)
 
-    # curvas do custo médio
-    ax.plot(dado_x, dados[:, 1], 'bo-', label=legenda[0])
+    # curvas do fitness médio
+    ax.plot(dado_x, dados[:, 0], 'bo-', label=legenda[0])
 
-    # curvas do custo mínimo
-    ax.plot(dado_x, dados[:, 2], 'rx-', label=legenda[1])
+    # curvas do fitness máximo
+    ax.plot(dado_x, dados[:, 1], 'rx-', label=legenda[1])
 
     # renomeia os eixos
     ax.set_xlabel(xlabel=eixo_x)
@@ -44,3 +45,16 @@ def gerar_grafico(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: str, lege
 
     # salva o gráfico
     fig.savefig(nome_do_arquivo)
+
+def gerar_grafico_curvas(dados: np.ndarray, titulo: str, eixo_x: str, eixo_y: str,
+                         legenda: list, nome_do_arquivo: str):
+    """
+    Função para gerar um gráfico do fitness com os dados passados
+    :param dados: dados a serem plotados
+    :param titulo: título do gráfico
+    :param eixo_x: nome do eixo x
+    :param eixo_y: nome do eixo y
+    :param legenda: legenda dos dados
+    :param nome_do_arquivo: nome do arquivo a ser salvo
+    """
+

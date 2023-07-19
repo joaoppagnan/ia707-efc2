@@ -17,5 +17,5 @@ def recombinacao_crossover_aritmetico(cromossomo_p1, cromossomo_p2):
                 cromossomo_filho.append(a*cromossomo_p1[j] + (1 - a)*cromossomo_p2[j])
             elif i == 1:
                 cromossomo_filho.append((1 - a)*cromossomo_p1[j] + a*cromossomo_p2[j])
-        descendentes.append([cromossomo_filho, 0])
+        descendentes.append([np.array(cromossomo_filho), 0])
     return descendentes

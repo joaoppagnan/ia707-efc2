@@ -19,6 +19,6 @@ def mutacao_uniforme(cromossomo: np.ndarray, p_mutacao: float, a: float, b: floa
                 cromossomo_mutado[i] = a
             elif cromossomo_mutado[i] > b:
                 cromossomo_mutado[i] = b
-        return cromossomo_mutado
+        return np.array(cromossomo_mutado)
     else:
         return cromossomo

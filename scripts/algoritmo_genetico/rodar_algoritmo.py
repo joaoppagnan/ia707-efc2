@@ -2,14 +2,13 @@ import numpy as np
 from algoritmo_genetico import algoritmo_genetico
 
 
-N_POPULACAO = 100
-CRITERIO_DE_PARADA = 20
-Q_TORNEIO = 10
+N_POPULACAO = 1000
+CRITERIO_DE_PARADA = 25
+Q_TORNEIO = 200
 P_MUTACAO = 0.5
 LIMITE_INFERIOR = -1.0
 LIMITE_SUPERIOR = 2
-PATH_MAT_DADOS = '../../dados/elshafei_QAP.mat'
-REALIZACOES = 10
+REALIZACOES = 5
 PATH_SALVAR_MELHORES_SOLUCOES = "../../melhores_solucoes/algoritmo-genetico/"
 PATH_GRAFICOS = "../../graficos/algoritmo-genetico/"
 
@@ -26,7 +25,7 @@ for realizacao in range(0, REALIZACOES):
     solucoes.append(solucao)
     fitnesses.append(fitness)
 
-np.savetxt(fname=PATH_SALVAR_MELHORES_SOLUCOES+'solucoes.txt', X=np.array(solucoes).reshape((len(solucoes), 19)),
+np.savetxt(fname=PATH_SALVAR_MELHORES_SOLUCOES+'solucoes.txt', X=np.array(solucoes).reshape((len(solucoes), 2)),
            delimiter=',', newline='\n', fmt='%i')
 np.savetxt(fname=PATH_SALVAR_MELHORES_SOLUCOES+'fitnesses.txt', X=np.array(fitnesses).reshape((len(fitnesses), 1)),
            delimiter=',', newline='\n', fmt='%.4f')
