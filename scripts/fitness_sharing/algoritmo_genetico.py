@@ -40,8 +40,8 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
     dados_fitness = np.empty((criterio_de_parada, 2))
 
     # calcula para a população inicial
-    dados_fitness[0, 0] = np.mean(populacao[:, 2])  # fitness sharing medio
-    dados_fitness[0, 1] = np.max(populacao[:, 2])  # melhor fitness sharing
+    dados_fitness[0, 0] = np.mean(populacao[:, 1])  # fitness sharing
+    dados_fitness[0, 1] = np.max(populacao[:, 1])  # melhor fitness
 
     # entra no loop principal do algoritmo
     for n_geracao in range(1, criterio_de_parada):
@@ -75,12 +75,12 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
         populacao = populacao[populacao[:, 2].argsort()][n_populacao:len(populacao)]
 
         # atualiza o array
-        dados_fitness[n_geracao, 0] = np.mean(populacao[:, 2])  # fitness sharing medio
-        dados_fitness[n_geracao, 1] = np.max(populacao[:, 2])  # melhor fitness sharing
+        dados_fitness[n_geracao, 0] = np.mean(populacao[:, 1])  # fitness medio
+        dados_fitness[n_geracao, 1] = np.max(populacao[:, 1])  # melhor fitness
 
     # gera o grafico do fitness
     titulo = r"Curvas de $fitness$ médio e máximo para a realização " + str(realizacao+1) +\
-             "\n do algoritmo genético"
+             "\n do algoritmo genético com $fitness$ $sharing$"
     nome_do_arquivo = "fitness-realizacao-" + str(realizacao+1) + ".pdf"
     legenda = [r"$Fitness$ médio", r"$Fitness$ máximo"]
     gerar_grafico_fitness(dados=dados_fitness, titulo=titulo, eixo_x="Geração", eixo_y=r"\it{Fitness}",
@@ -88,7 +88,7 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
 
     # gera o grafico das curvas de nível
     titulo = r"Distribuição da população final sobre as curvas de nível de $f(x, y)$" +\
-             "\n para a realização " + str(realizacao+1) + " do algoritmo genético"
+             "\n para a realização " + str(realizacao+1) + " do algoritmo genético com $fitness$ $sharing$"
     nome_do_arquivo = "distribuicao-realizacao-" + str(realizacao+1) + ".pdf"
     legenda = ["Curvas de nível", "População"]
     gerar_grafico_curvas(dados=populacao, titulo=titulo, eixo_x="$x$", eixo_y="$y$", legenda=legenda,
