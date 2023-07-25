@@ -58,6 +58,7 @@
 \newcommand{\Or}{\textbf{ou}\xspace}
 \renewcommand{\Return}{\textbf{retorna}\xspace}
 \newcommand{\sh}{\text{sh}\xspace}
+\newcommand{\crossover}{\textit{crossover}\xspace}
 
 
 \newenvironment{brprocess}[1][]
@@ -384,7 +385,7 @@ Executando o algoritmo genético desenvolvido cinco vezes, obtiveram-se as curva
     \label{fig:fitness-distribuicao}
 \end{figure}
 
-É possível notar que, na maior parte das realizações do algoritmo a curva de \fitness médio se aproxima à de melhor \fitness com o aumento do número da geração que este está. No caso, o valor médio e desvio padrão obtidos para a função de avaliação utilizando as melhores soluções de cada realização foi de $\num{4.2538233169\pm 0.0001280352}$ e, combinando este resultado a uma análise do gráfico, nota-se que o algoritmo foi bem sucedido em encontrar o máximo de $f(x,y)$ no intervalo solicitado.
+É possível notar que, na maior parte das realizações do algoritmo a curva de \fitness médio se aproxima à de melhor \fitness com o aumento do número da geração que este está. No caso, o valor médio e desvio padrão obtidos para a função de avaliação utilizando as melhores soluções de cada realização foi de $\num{4.2475709055\pm 0.0126350757}$ e, combinando este resultado a uma análise do gráfico, nota-se que o algoritmo foi bem sucedido em encontrar o máximo de $f(x,y)$ no intervalo solicitado.
 
 Apesar disso, nota-se que há pouca diversidade na população final, afinal, a distri\-buição dos indivíduos sobre as curvas de nível de $f(x,y)$ não é tão grande, indicando que as soluções estão se assemelhando bastante umas com as outras.
 
@@ -457,7 +458,7 @@ O valor de cada parâmetro foi determinado de maneira exploratória, sendo que o
     \label{tab:valores-parametros2}
 \end{table}
 
-Implementando o \fitsha utilizando o processo \ref{proc:fitsha} e executando o algoritmo genético cinco vezes, obtiveram-se os resultados apresentados em \ref{fig:fitness-distribuicao-sharing}.
+Implementando o \fitsha utilizando o processo \ref{proc:fitsha} e executando o algoritmo genético cinco vezes, obtiveram-se os resultados apresentados na figura \ref{fig:fitness-distribuicao-sharing}.
 \begin{figure}[!ht]
     \centering
     \begin{subfigure}{0.4\textwidth}
@@ -507,7 +508,92 @@ Implementando o \fitsha utilizando o processo \ref{proc:fitsha} e executando o a
     \label{fig:fitness-distribuicao-sharing}
 \end{figure}
 
+Com o \fitsha, nota-se uma grande mudança na distribuição da população final sobre as curvas de nível de $f(x, y)$, assim como nas curvas de \fitness médio nas realizações, sendo que apenas as curvas de melhor \fitness se mantiveram como antes, indicando que a solução ótima ainda está na população final. Além disso, nas figuras das distribuições, nota-se que as populações finais estão distribuídas ao redor dos máximos locais da superfície, evidenciando o diferente resultado obtido com a implementação do \fitsha.
+
+Quando observa-se o valor médio e o desvio padrão nas realizações para quando a seleção foi feita com o \fitsha, essa mudança é realçada. No caso, o \fitness médio e o desvio padrão obtido com as cinco realizações quando utiliza-se como critério o \fitsha cai para $1.3957084514\pm 0.4094684937$.
+
+À princípio, analisando de uma forma puramente métrica, o \fitsha dá a impressão de fornecer maus resultados para a população final do algoritmo genético, mas, analisando de um ponto de vista da engenharia, o \fitsha aumenta, em muito, a diversidade da população final. 
+
+Isso é de extrema importância quando a solução ótima tem um custo muito elevado para ser implementada. Agora, quando se tem vários ótimos locais no conjunto final de soluções, encontrar uma que possa ser implementada sem trazer tantos custos para o projeto de engenharia fica consideravelmente mais fácil. Esse não era o caso para o problema em análise, mas é algo que deve ser levado em conta para resolver certos tipos de problemas de engenharia com computação evolutiva. 
+
+Com isso, vê-se a importância de técnicas de \fitsha na resolução de problemas.
+
 \textbf{(d) Introduza, por fim, o esquema de restrição de cruzamento (seguindo o espírito da abordagem de especiação) proposto por \cite{deb1989genetic} Analise o impacto da inserção deste mecanismo na evolução da população e, em última análise, no desempenho do algoritmo.}
+
+Adicionando o esquema de restrição de cruzamento pela abordagem de especiação no algoritmo genético com \fitsha. 
+
+Esse método funciona restringindo a recombinação entre indivíduos utilizando a distância entre eles, de forma que apenas indivíduos limitados a uma distância de $\sigma_{mate}$ poderão gerar descendentes. No caso, se a distância for maior que $\sigma_{mate}$, um novo sorteio é realizado e, caso toda a população seja varrida para procurar outro par com base na distância, um indivíduo aleatório é sorteado, desconsiderando essa métrica.
+
+Logo, a única alteração que haverá no algoritmo será na recombinação, que agora só será realizada se a distância entre os indivíduos é menor que $\sigma_{mate}$ e, caso contrário, uma nova seleção é feita até encontrar indivíduos compatíveis, considerando também o \fitsha, como mostrado no processo \ref{alg:especiacao}.
+\begin{brprocess}[!ht]
+    \cprotect\caption{Operador de especiação (\verb|especiacao(individuo_1,|
+    \verb|individuo_2, sigma_mate|)}
+    \textbf{Entrada}: cromossomo dos dois pais\\
+    \textbf{Parâmetros}: $\sigma_{mate}$ \\
+    \textbf{Saída}: cromossomo de ambos os filhos
+    \begin{algorithmic}
+        \State distância $\gets$ \verb|calc_distância(individuo_1, individuo_2)|
+        \If{distância $< \sigma_{mate}$}
+            \State \Return 1
+        \Else
+            \State \Return 0
+        \EndIf
+    \end{algorithmic}
+    \label{alg:especiacao}
+\end{brprocess}
+
+Para este operador, foi 
+
+Executando o algoritmo genético com \fitsha e especiação, obtiveram-se os resultados apresentados na figura \ref{fig:fitness-distribuicao-sharing-especiacao}.
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-1.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-1.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-2.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-2.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-3.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-3.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-4.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-4.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-5.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-5.pdf}
+    \end{subfigure}
+    \hfill
+    \caption{À esquerda, as curvas de melhor \fitness e \fitness médio em cada realização e, à direita, a distribuição da população final sobre as curvas de nível de $f(x, y)$ nas respectivas realizações.}
+    \label{fig:fitness-distribuicao-sharing-especiacao}
+\end{figure}
+
 
 \clearpage
 

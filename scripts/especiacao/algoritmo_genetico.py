@@ -61,8 +61,9 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
                 pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
                 pais[1] = pai
 
+            indice_individuo = 0
             # checa se estão dentro do limiar de distância, caso contrário, seleciona outro segundo pai
-            while not especiacao(pais[0], pais[1], sigma_mate):
+            while not especiacao(pais[0], pais[1], sigma_mate) and indice_individuo < n_populacao:
                 pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
                 pais[1] = pai
 
@@ -70,6 +71,13 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
                 while np.array_equal(pais[0][0], pais[1][0]):
                     pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
                     pais[1] = pai
+
+                # para checar se já varreu a população
+                indice_individuo += 1
+
+            # se varreu a população, sorteia um indivíduo aleatório dela
+            pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
+            pais[1] = pai
 
             # realiza a recombinação para produzir um descendente
             descendentes = recombinacao_crossover_aritmetico(cromossomo_p1=pais[0][0], cromossomo_p2=pais[1][0])
