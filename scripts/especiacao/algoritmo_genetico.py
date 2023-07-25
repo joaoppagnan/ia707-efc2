@@ -6,11 +6,12 @@ from selecao_torneio import selecao_torneio
 from recombinacao_crossover_aritmetico import recombinacao_crossover_aritmetico
 from mutacao_uniforme import mutacao_uniforme
 from fitness_sharing import fitness_sharing
+from especiacao import especiacao
 from gerar_grafico import gerar_grafico_fitness, gerar_grafico_curvas
 
 
 def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: int, p_mutacao: float,
-                       limite_inferior: float, limite_superior: float, sigma: float, alpha: float,
+                       limite_inferior: float, limite_superior: float, sigma: float, alpha: float, sigma_mate: float,
                        realizacao: int, path_graficos: str):
     """
     Funcao principal do algoritmo genetico
@@ -22,6 +23,7 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
     :param limite_superior: limite superior da região de busca
     :param sigma: limiar de similaridade do fitness sharing
     :param alpha: forma da similaridade do fitness sharing
+    :param sigma_mate: limiar de distância para haver recombinação
     :param str realizacao: realização do algoritmo
     :param str path_graficos: caminho para salvar os gráficos
     :return: melhor individuo e melhor fitness
@@ -53,6 +55,21 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
             for i in range(0, 2):
                 pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
                 pais.append(pai)
+
+            # checa se são indivíduos diferentes e, caso forem iguais, realiza uma nova seleção
+            while np.array_equal(pais[0][0], pais[1][0]):
+                pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
+                pais[1] = pai
+
+            # checa se estão dentro do limiar de distância, caso contrário, seleciona outro segundo pai
+            while not especiacao(pais[0], pais[1], sigma_mate):
+                pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
+                pais[1] = pai
+
+                # checa se são indivíduos diferentes e, caso forem iguais, realiza uma nova seleção
+                while np.array_equal(pais[0][0], pais[1][0]):
+                    pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
+                    pais[1] = pai
 
             # realiza a recombinação para produzir um descendente
             descendentes = recombinacao_crossover_aritmetico(cromossomo_p1=pais[0][0], cromossomo_p2=pais[1][0])

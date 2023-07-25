@@ -10,6 +10,7 @@ LIMITE_INFERIOR = -1.0
 LIMITE_SUPERIOR = 2
 SIGMA = 0.4
 ALPHA = 1.0
+SIGMA_MATE = 0.55
 REALIZACOES = 5
 PATH_SALVAR_MELHORES_SOLUCOES = "../../melhores_solucoes/especiacao/"
 PATH_GRAFICOS = "../../graficos/especiacao/"
@@ -23,6 +24,7 @@ for realizacao in range(0, REALIZACOES):
     solucao, fitness, fitness_sharing = algoritmo_genetico(n_populacao=N_POPULACAO, q_torneio=Q_TORNEIO,
                                                            criterio_de_parada=CRITERIO_DE_PARADA,
                                                            p_mutacao=P_MUTACAO, sigma=SIGMA, alpha=ALPHA,
+                                                           sigma_mate=SIGMA_MATE,
                                                            limite_inferior=LIMITE_INFERIOR,
                                                            limite_superior=LIMITE_SUPERIOR,
                                                            realizacao=realizacao, path_graficos=PATH_GRAFICOS)

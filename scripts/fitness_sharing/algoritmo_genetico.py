@@ -54,6 +54,11 @@ def algoritmo_genetico(n_populacao: int, q_torneio: float, criterio_de_parada: i
                 pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
                 pais.append(pai)
 
+            # checa se são indivíduos diferentes e, caso forem iguais, realiza uma nova seleção
+            while np.array_equal(pais[0][0], pais[1][0]):
+                pai = selecao_torneio(populacao=populacao, n_populacao=n_populacao, q_torneio=q_torneio)
+                pais[1] = pai
+
             # realiza a recombinação para produzir um descendente
             descendentes = recombinacao_crossover_aritmetico(cromossomo_p1=pais[0][0], cromossomo_p2=pais[1][0])
 
