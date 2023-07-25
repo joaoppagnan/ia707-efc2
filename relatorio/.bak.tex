@@ -55,6 +55,10 @@
 \newcommand{\hardware}{\textit{hardware}\xspace}
 \newcommand{\fitness}{\textit{fitness}\xspace}
 \newcommand{\fitsha}{\textit{fitness sharing}\xspace}
+\newcommand{\Or}{\textbf{ou}\xspace}
+\renewcommand{\Return}{\textbf{retorna}\xspace}
+\newcommand{\sh}{\text{sh}\xspace}
+\newcommand{\crossover}{\textit{crossover}\xspace}
 
 
 \newenvironment{brprocess}[1][]
@@ -104,8 +108,7 @@
 \begin{minipage}[t]{0.4\textwidth}
 	\begin{flushleft}
     \textit{Alunos}\\
-    João Pedro O. Pagnan - 199727\\
-    João Pedro M. Ferreira - 218762
+    João Pedro O. Pagnan - 199727
 	\end{flushleft}
 \end{minipage}
 ~
@@ -128,83 +131,90 @@
 \justify
 
 Neste exercício, vamos abordar o problema de otimização de função multimodal, com o auxílio de um algoritmo genético (GA, do inglês \textit{genetic algorithm}). Iremos considerar a função contínua
-$$f (x, y) = x \sen(4\pi x) - y \sen(4\pi y + \pi) + 1,$$
+$$f (x, y) = x \cdot \sen(4\pi \cdot x) - y \cdot \sen(4\pi \cdot y + \pi) + 1,$$
 onde $x, y \in [-1, 2]$ e desejamos determinar o ponto $(x^{*} , y^{*})$ que maximize a função $f(\cdot )$.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuras/grafico-funcao.png}
+    \caption{Visualização da superfície e das curvas de nível da função $f (x, y)$.}
+    \label{fig:grafico-funcao}
+\end{figure}
 
 \textbf{(a) Proponha um algoritmo genético (AG) para encontrar o máximo global de $f(x, y)$. Descreva todos os elementos que o compõem – codificação, função de \fitness, operadores, etc. — e justifique suas escolhas.}
 
-Para começar a formular o problema deve-se pensar sobre a representação das soluções candidatas e, em seguida, a função \fitness, seguida dos operadores e, por fim, a codificação e parâmetros utilizados para os operadores.
-
-Para este problema foi escolhido utilizar a codificação real, ou seja, um vetor de dois atributos reais da forma
-\begin{equation}
-    \mathbf{z} = [x, y],
-\end{equation} 
-sendo $x$ e $y$ as variáveis de $f$.
-
-Esta escolha foi feita pois o problema a ser resolvido se trata de uma otimização de uma função multimodal das variáveis $x$ e $y$.
-
-A função de avaliação que será utilizada é a própria função $f(x, y)$, sendo que deseja-se maximizá-la. 
-Desta forma, os valores maiores da função $f(x,y)$ das soluções produzem melhores valores de \textit{fitness} e, consequentemente, a função de avaliação se aproxima da solução ótima do problema.
-
-O algoritmo genético a ser utilizado possui as seguintes etapas:
+O algoritmo genético para encontrar o máximo global de $f(x, y)$ será composto pelo seguinte passo a passo:
 \begin{enumerate}
-    \item Gerar a população inicial com $N$ indivíduos;
-    \item Calcular o \textit{fitness} para cada indivíduo da população inicial;
-    \item Aplicar o operador de seleção para selecionar dois indivíduos baseado em seus valores de \textit{fitness};
+    \item Gerar a população inicial com $N$ indivíduos representados pela codificação adotada;
+    \item Calcular o \fitness para cada indivíduo da população inicial;
+    \item Aplicar o operador de seleção para selecionar dois indivíduos baseado em seus \textit{fitness};
     \item Aplicar o operador de recombinação para gerar dois descendentes;
-    \item Aplicar o operador de mutação nos descendentes para que os respectivos genes tenham uma probabilidade $p_m$ de serem mutados;
+    \item Aplicar o operador de mutação nos descendentes para que os respectivos cromossomos tenham uma probabilidade $p_m$ de serem mutados;
     \item Caso o número total de indivíduos e descendentes for menor que $2N$, repetir do passo 3 ao 5;
-    \item Calcular o \textit{fitness} dos descendentes;
-    \item Eliminar os $N$ indivíduos de menor \textit{fitness};
+    \item Calcular o \fitness dos descendentes;
+    \item Eliminar os $N$ indivíduos de menor \fitness;
     \item Repetir do passo 3 ao 8 até o critério de parada ser atingido.
 \end{enumerate}
 
-A \textbf{geração da população inicial} será da forma indicada no processo \ref{alg:pop-inicial}, sendo $N$ o tamanho da população, $n$ é o número de variáveis da função multimodal, $min$ o valor mínimo do espaço de busca e $max$ o valor máximo do espaço de busca.
-\begin{brprocess}[!ht]
-\textbf{Paramêtros}: Tamanho da população desejada e tamanho do cromossomo\\
-\textbf{Saída}: População gerada
-\cprotect\caption{Geração aleatória da população inicial (\verb|gerar_pop(N, n, min, max)|)}
-\begin{algorithmic}
-\State população $\gets [\;]$
-\State $i\gets 0$
+No caso, a codificação adotada escolhida foi a \textbf{codificação real}, em que cada indivíduo, ou solução, é representada por um vetor bidimensional cujos elementos são números reais, isto é, sendo $\bm{z}$ um indivíduo da população:
+\begin{equation}
+    \bm{z} = \left[x, y \right],
+\end{equation}
+com $x,y \in [-1, 2]$.
 
-\While{$i < N$}
-    \State cromossomo $\gets [\;]$
-    \State $j \gets 0$
-    \While{$j < n$}
-        \State gene $\gets$ alelo $\in \{min, max\}$
-        \State cromossomo $[j] \gets$ gene
-        \State $j \gets j + 1$
+A \textbf{geração da população inicial} será da forma indicada no processo \ref{alg:pop-inicial}, sendo $N$ o tamanho da população.
+\begin{brprocess}[!ht]
+    \textbf{Paramêtros}: Tamanho da população desejada\\
+    \textbf{Saída}: População gerada
+    \cprotect\caption{Geração aleatória da população inicial (\verb|gerar_pop(N)|)}
+    \begin{algorithmic}
+    \State população $\gets [\;]$
+    \State $i\gets 0$
+    \While{$i < N$}
+        \State cromossomo $\gets [\;]$
+        \State $j \gets 0$
+        \While{$j < 2$}
+            \State gene $\gets$ alelo $\in [-1, 2]]$
+            \State cromossomo $[j] \gets$ gene
+            \State $j \gets j + 1$
+        \EndWhile
+        \State \textit{fitness} $\gets 0$
+        \State população $[i] \gets$ [cromossomo, \textit{fitness}]
+        \State $i \gets i + 1$
     \EndWhile
-    \State \textit{fitness} $\gets 0$
-    \State população $[i] \gets$ [cromossomo, \textit{fitness}]
-    \State $i \gets i + 1$
-\EndWhile
-\State \textbf{retorna} população
-\end{algorithmic}
-\label{alg:pop-inicial}
+    \State \Return população
+    \end{algorithmic}
+    \label{alg:pop-inicial}
 \end{brprocess}
 
-Vale ser mencionado que, para esta representação, composta por $n$ variáveis do problema, a quantidade de alelos é igual ao tamanho do cromossomo. Os alelos são números reais que pertencem ao intervalo $(min,max)$. Além disso, cada indivíduo da população irá armazenar o seu cromossomo e seu valor de \textit{fitness}.
+No caso, o primeiro alelo do cromossomo se refere à variável $x$ e o segundo à variável $y$. Vale mencionar que os valores sorteados seguem uma distribuição uniforme.
 
-O \textbf{cálculo do \textit{fitness}} seguirá a equação dada do problema e pode ser descrito pelo processo \ref{alg:fitness}.
+\textbf{Observação:} Como o algoritmo genético será implementado em \Python, foi considerado que a coordenadas dos elementos dos vetores se iniciam em 0.
+
+Na segunda etapa do algoritmo genético tem-se o \textbf{cálculo do valor da função de avaliação}. No caso, a função de avaliação, ou \fitness, adotada é a própria função que deseja-se maximizar. Dessa forma, o cálculo é dado por:
+\begin{equation}\label{eq:fitness}
+    \phi(\bm{z}) = \phi(x, y) = x \cdot \sen(4\pi \cdot x) - y \cdot \sen(4\pi \cdot y + \pi) + 1
+\end{equation}
+
+Com isso, o processo que define o cálculo do \fitness é descrito da forma indicada no processo \ref{alg:fitness}.
 \begin{brprocess}[!ht]
-\textbf{Entrada}: população\\
-\textbf{Saída}: população com os valores de \textit{Fitness} atualizado
-\cprotect\caption{Cálculo do \textit{fitness} (\verb|calc_fitness(populacao)|)}
+\textbf{Entradas}: população\\
+\textbf{Saída}: população com os valores de \fitness atualizado
+\cprotect\caption{Cálculo do \fitness (\verb|calc_fitness(populacao)|)}
 \begin{algorithmic}
 \For{indivíduo \textbf{em} população}
     \If{indivíduo[1] = 0}
-        \State{fitness = f(individuo[0][0],individuo[0][1])}
-        \State indivíduo[1] = fitness
+        \State{$x =$ indivíduo$[0][0]$}
+        \State{$y =$ indivíduo$[0][1]$}
+        \State{\fitness = $x \cdot \sen(4\pi \cdot x) - y \cdot \sen(4\pi \cdot y + \pi) + 1$}
+        \State indivíduo[1] = \fitness
     \EndIf
 \EndFor
-\State \textbf{retorna} população
+\State \Return população
 \end{algorithmic}
 \label{alg:fitness}
 \end{brprocess}
 
-Na quarta etapa, o GA aplica o \textbf{operador de seleção de torneio} na população. Esse método utiliza o parâmetro $q$, que é a igual a quantidade de indivíduos da população selecionados por torneio. Esse método é executado duas vezes no algoritmo genético, de forma a determinar dois pais para a recombinação e é descrito pelo processo \ref{alg:selecao}.
+Na terceira etapa, o GA aplica o \textbf{operador de seleção por torneio} na população. Esse método utiliza o parâmetro $q$, que é igual à quantidade de indivíduos da população selecionados por torneio. Esse método é executado duas vezes no algoritmo genético, de forma a determinar dois pais para a recombinação e é descrito pelo processo \ref{alg:selecao}.
 \begin{brprocess}[!ht]
     \cprotect\caption{Operador de seleção por torneio (\verb|selecao_torneio(populacao,|
     \verb|N, q_torneio)|}
@@ -219,88 +229,78 @@ Na quarta etapa, o GA aplica o \textbf{operador de seleção de torneio} na popu
                 \State indivíduos participantes $[i] \gets$ população [índice indivíduo selecionado]
                 \State $i \gets i + 1$
             \EndWhile
-            \State indice do melhor indivíduo $\gets$ indivíduos participantes[\verb|argmax|(indivíduos participantes [:,1]])
+            \State índice do melhor indivíduo $\gets$ indivíduos participantes[\verb|argmax|(indivíduos participantes [:,1]])
             \State melhor indivíduo $\gets$ indivíduos participantes[índice do melhor indivíduo]
-            \State \textbf{retorna} melhor indivíduo
+            \State \Return melhor indivíduo
     \end{algorithmic}
     \label{alg:selecao}
 \end{brprocess}
 
-Este operador foi escolhido por possibilitar o ajuste da pressão seletiva na população pelo parâmetro $q$.
+Este operador foi escolhido por possibilitar o ajuste da pressão seletiva na população através do parâmetro $q$.
 
-Em seguida, na quinta etapa, o \textbf{operador de recombinação} que será aplicado foi o método de \textit{crossover aritmético}, nele o vetor (filho) gerado resulta de uma combinação linear (convexa)
-de dois vetores (pais). Sendo $P1$ e $P2$ os pais e $D1$ e $D2$ os descendentes, esse método é descrito pelo processo \ref{alg:recombinacao}.
+Em seguida, na quarta etapa, o \textbf{operador de recombinação} escolhido foi o método de \textit{crossover} aritmético. Nele, os filhos gerados resultam de uma combinação linear dois pais. Esse método foi escolhido por ser bem apropriado para problemas de otimização numérica com restrições onde a região factível é convexa. Esse é o caso para o problema que deseja-se resolver.
 
+O operador de recombinação escolhido é descrito pelo processo \ref{alg:recombinacao}. Vale ressaltar que o valor aleatório $a$ é obtido através de uma realização de um processo com distribuição uniforme e $a \in [0, 1]$. 
 \begin{brprocess}[!ht]
     \cprotect\caption{Operador de recombinação (\verb|crossover_aritmetico(cromossomo_p1,|
-    \verb|cromossomo_p2,| \verb|min,| \verb|max|)}
-    \textbf{Entrada}: cromossomo dos dois pais, mínimo e máximo do espaço de busca\\
+    \verb|cromossomo_p2|)}
+    \textbf{Entrada}: cromossomo dos dois pais\\
     \textbf{Saída}: cromossomo de ambos os filhos
     \begin{algorithmic}
         \State $i \gets 0$
         \State descendentes $\gets [\;]$
+        \State $a \gets \text{número aleatório} \in [0, 1]$
         \While{$i < 2$}
-            \State $j \gets 0$
-            \State {pesos $\gets [\;]$}
-            \While{$j < len(cromossomo\_p1)$}
-                \State{pesos[j] $\gets v \in \{0, ..., p_m\, ..., 1\}, v \in \mathbb{R}$}
-                \State $j \gets j + 1$ 
-            \EndWhile
-            \State $k \gets 0$
-            \State filho $\gets [\;]$
-            \While{$k < len(cromossomo\_p1)$}
-                \State {gene1 $\gets cromossomo_\p1[j]$}
-                \State {gene2 $\gets cromossomo_\p2[j]$}
-                \State {novo-gene $\gets pesos[0]\cdot gene1 + pesos[1]\cdot gene2 $}
-                \If{novo-gene$<$ min}
-                    \State {novo-gene $\gets$ min}
-                \EndIf
-                \If{novo-gene$>$ max}
-                    \State {novo-gene $\gets$ max}
-                \EndIf
-                \State{filho[k] $\gets$ novo-gene}
-                \State $k \gets k + 1$
-            \EndWhile
-            \State{descendentes[i] $\gets$ [filho, 0]}
-            \State $i \gets i + 1$        
+            \If{$i = 0$}
+                \State filho $\gets a \cdot \text{pai}_1 + (1 - a) \cdot \text{pai}_2$
+            \EndIf
+            \If{$i = 1$}
+                \State filho $\gets (1 - a) \cdot \text{pai}_1 + a \cdot \text{pai}_2$
+            \EndIf
+            \State descendentes[$i$] $\gets$ filho
+            \State $i \gets i + 1$
         \EndWhile
-        \State \textbf{retorna} descendentes
+        \State \Return descendentes
     \end{algorithmic}
     \label{alg:recombinacao}
 \end{brprocess}
 
-Por fim, resta detalhar o \textbf{operador de mutação} utilizado. Neste caso, foi escolhido a mutação uniforme que consiste em pegar uma fração do intervalo de busca que chamaremos de $f_m$, e a partir disso será determinado o intervalo da distribuição, $r = f_m \cdot (max-min)$ assim a distribuição uniforme é dada por $U(-r,r)^l$.
+Por fim, resta detalhar o \textbf{operador de mutação} utilizado. Considerando um indivíduo $x \in \mathbb{R}^2$, seu valor mutado pode ser expresso por $x' = m(x)$, sendo $m(\cdot)$ o operador de mutação. 
 
-O processo pode ser descrito da forma indicada no processo \ref{alg:mutacao}.
+No caso, foi escolhida a \textbf{mutação uniforme}. Logo, pode-se descrever a mutação através da expressão $x' = x + M$, com $M$ sendo um vetor de variáveis aleatórias no $\mathbb{R}^2$ e seguindo uma distribuição aleatória uniforme $U = (a, b)^2$. As variáveis $a$ e $b$ são os limites inferiores e superiores da região de busca, respectivamente, de forma que $a = -1$ e $b = 2$.
+
+O processo pode ser descrito da forma indicada no processo \ref{alg:mutacao}, sendo $p_m$ a probabilidade da mutação ocorrer.
 \begin{brprocess}[!ht]
-    \cprotect\caption{Operador de mutação (\verb|mutacao_uniforme(cromossomo,|
-    \verb|p_mutacao,|\verb|f_mutacao,| \verb|min,| \verb|max|)}
-    \textbf{Entrada}: cromossomo a ser mutado e valores mínimo e máximo do espaço de busca\\
-    \textbf{Parâmetros}: probabilidade da mutação ocorrer e fator de mutação que vai determinar um intervalo em que o gene pode ser mutado\\
+    \cprotect\caption{Operador de mutação (\verb|mutacao_uniforme(cromossomo|,
+    \verb|p_mutacao|, \verb|a|, \verb|b|)}
+    \textbf{Entrada}: cromossomo a ser mutado e valores máximos e mínimos do espaço de busca\\
+    \textbf{Parâmetros}: probabilidade da mutação ocorrer\\
     \textbf{Saída}: cromossomo mutado
     \begin{algorithmic}
-        \State $i \gets 0$
-        \State{número $\gets k \in \{0, ..., p_m\, ..., 1\}, k \in \mathbb{R}$}
-        \For{i \textbf{em} len(cromossomo)}
-            \If{indivíduo[1] = 0}
-                \State{range-mutacao $\gets (max - min)\cdot f_m$}
-                \State {valor-mutacao $\gets r \in \{$-range-mutacao, range-mutacao$\}, r \in \mathbb{R}$}
-                \State {cromossomo[i] $\gets$ cromossomo[i] + valor-mutacao}
-                \If{cromossomo[i]$<$ min}
-                    \State {cromossomo[i] $\gets$ min}
+        \State{k $\gets$ número aleatório $\in [0, 1]$}
+        \If{$k < p_m$}
+            \State{$M \gets []$}
+            \State{$i \gets 0$}
+            \While{$i < 2$}
+                \State{$M[i] \gets$ número aleatório $\in [a, b]$}
+                \State{cromossomo$[i] \gets$ cromossomo$[i] + M[i]$}
+                \If{cromossomo$[i] < a$}
+                    \State{cromossomo$[i] \gets a$}
                 \EndIf
-                \If{cromossomo[i]$>$ max}
-                    \State {cromossomo[i] $\gets$ max}
+                \If{cromossomo$[i] > b$}
+                    \State{cromossomo$[i] \gets b$}
                 \EndIf
-            \EndIf
-        \EndFor
+                \State{$i \gets i + 1$}
+            \EndWhile
+        \EndIf
+        \State \Return cromossomo
     \end{algorithmic}
     \label{alg:mutacao}
 \end{brprocess}
 
-Com isso, foram descritos os operadores escolhidos para serem utilizados na geração de indivíduos desse algoritmo genético.
+Com isso, foram descritos os operadores escolhidos para serem utilizados na geração, seleção, recombinação e mutação de indivíduos desse algoritmo genético.
 
-Estes operadores serão executados nessa sequência até que a população tenha $2N$ soluções, quando ocorrerá uma eliminação dos $N$ indivíduos de menor \textit{fitness}. Esse processo será repetido até o critério de parada ser atingido. 
+Esses operadores serão executados nessa sequência até que a população tenha $2N$ soluções, quando ocorrerá uma eliminação dos $N$ indivíduos de menor \textit{fitness}, sendo que o processo será repetido até o critério de parada ser atingido. 
 
 O \textbf{critério de parada} escolhido para o algoritmo foi o número de gerações $n_g$. 
 
@@ -308,262 +308,292 @@ Esse algoritmo tem, portanto, os seguintes parâmetros:
 \begin{itemize}
     \item $N$: tamanho da população inicial;
     \item $q$: quantidade de indivíduos presentes no torneio;
-    \item $f_m$: fator da mutação.
     \item $p_m$: probabilidade de ocorrer uma mutação;
     \item $n_g$: número de gerações.
-    \item $min$: menor valor do espaço de busca.
-    \item $max$: maior valor do espaço de busca.
+    \item $a$: menor valor do espaço de busca;
+    \item $b$: maior valor do espaço de busca;
 \end{itemize}
 
-O valor de cada parâmetro foi determinado de maneira exploratória, sendo que os valores escolhidos estão indicados na tabela \ref{tab:valores-parametros}, vale ressaltar que os valores do espaço de busca já foram pré determinado.
+O valor de cada parâmetro foi determinado de maneira exploratória, sendo que os valores escolhidos estão indicados na tabela \ref{tab:valores-parametros}. Vale ressaltar que os valores mínimo e máximo do espaço de busca já estão estabelecidos no enunciado do problema que deseja-se resolver.
 \begin{table}[H]
     \centering
     \begin{tabular}{c c}
     \toprule
-        $\bm{N}$ & 200\\
-        $\bm{q}$ & 20\\
-        $\bm{f_m}$ & 0.1\\
-        $\bm{p_m}$ & 0.5\\
-        $\bm{n_g}$ & 200\\
-        $\bm{min}$ & -1\\
-        $\bm{max}$ & 2\\
+        $\bm{N}$ & 500\\
+        $\bm{q}$ & 5\\
+        $\bm{p_m}$ & 0.2\\
+        $\bm{n_g}$ & 20\\
+        $\bm{a}$ & -1\\
+        $\bm{b}$ & 2\\
     \bottomrule
     \end{tabular}
     \caption{Valores para os parâmetros do algoritmo genético.}
     \label{tab:valores-parametros}
 \end{table}
 
+Desta forma, tem-se o algoritmo genético desenvolvido para a encontrar o ponto de máximo da expressão $f(x, y)$ na região solicitada.
+
 \textbf{(b) Para cada uma de 5 execuções independentes do AG, apresente as curvas de \fitness médio e de \fitness do melhor indivíduo em função do número de gerações. Mostre também, tendo por pano de fundo as curvas de nível da função $f(x, y)$, a distribuição dos indivíduos da população final em cada execução. Com base nesse conjunto de gráficos, busque analisar o algoritmo em termos de sua eficiência de busca e manutenção de diversidade.}
 
-Executando o algoritmo construído por 5 vezes, e em cada caso gerando uma nova população inicial aleatória, foram obtidas os seguintes gráficos de curva do fitness médio e melhor fitness e também das curvas de nível com a distribuição da população final. Foram divididas em duas figuras \ref{fig:curvas1} e \ref{fig:curvas2} para que a visualização fosse adequada. 
-
+Executando o algoritmo genético desenvolvido cinco vezes, obtiveram-se as curvas de melhor \fitness, \fitness médio e, ao lado dessas figuras, estão apresentadas as distribuições das populações finais sobre as curvas de nível de $f(x,y)$ em cada realização, como indicado na figura \ref{fig:fitness-distribuicao}.
 \begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/b1.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/b2.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/b3.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético.}
-\label{fig:curvas1}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/fitness-realizacao-1.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/distribuicao-realizacao-1.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/fitness-realizacao-2.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/distribuicao-realizacao-2.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/fitness-realizacao-3.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/distribuicao-realizacao-3.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/fitness-realizacao-4.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/distribuicao-realizacao-4.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/fitness-realizacao-5.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/algoritmo-genetico/distribuicao-realizacao-5.pdf}
+    \end{subfigure}
+    \hfill
+    \caption{À esquerda, as curvas de melhor \fitness e \fitness médio em cada realização e, à direita, a distribuição da população final sobre as curvas de nível de $f(x, y)$ nas respectivas realizações.}
+    \label{fig:fitness-distribuicao}
 \end{figure}
-\begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/b4.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/b5.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético.}
-\label{fig:curvas2}
-\end{figure}
 
-É interessante notar que, em todas as realizações, o melhor fitness foi sempre bem maior do que o fitness médio na geração 0, ou seja, em relação ao custo médio da população inicial aleatória. Nas gerações seguintes, vê-se que houve um aumento brusco do fitness médio da população, se assemelhando a uma função logarítmica crescente, indicando que os genes do cromossomo do melhor indivíduo da população inicial estão se propagando pelas gerações e, ao cromossomo se recombinar com o cromossomo de outros indivíduos ao longo das gerações do algoritmo, se torna mais parecido com o da solução ótima. Percebe-se que a curva do fitness médio vai chegando mais próximo da curva do melhor fitness, isso acontece pois a diversidade está sendo perdida, já que no fim de cada geração escolhe-se sempre os indivíduos com melhor fitness.
+É possível notar que, na maior parte das realizações do algoritmo a curva de \fitness médio se aproxima à de melhor \fitness com o aumento do número da geração que este está. No caso, o valor médio e desvio padrão obtidos para a função de avaliação utilizando as melhores soluções de cada realização foi de $\num{4.2475709055\pm 0.0126350757}$ e, combinando este resultado a uma análise do gráfico, nota-se que o algoritmo foi bem sucedido em encontrar o máximo de $f(x,y)$ no intervalo solicitado.
 
-Analisando o gráfico de curvas de nível, é possível notar pela distribuição da população final, que a grande maioria tende a ir pra região de ótimo global, embora ainda existam indivíduos em outros picos próximos ao máximo global, mas é uma quantidade baixa em relação a população inteira. 
+Apesar disso, nota-se que há pouca diversidade na população final, afinal, a distri\-buição dos indivíduos sobre as curvas de nível de $f(x,y)$ não é tão grande, indicando que as soluções estão se assemelhando bastante umas com as outras.
 
-Portanto, pode-se concluir que o algoritmo genético desenvolvido teve um bom desempenho em buscar o ótimo global da função analisada, dado que muitos indivíduos se encontram ou no ou em torno do pico mais alto.
+Neste caso, isso não foi um problema porque todas as melhores soluções foram para a mesma região da superfície, mas, caso a função que deseja-se maximizar fosse diferente, as melhores soluções poderiam ir para máximos locais da região analisada.
+
+Desta forma, conclui-se que, apesar do algoritmo ser eficiente em termos de sua eficiência de busca, esse não é eficiente para manter a diversidade da população. 
 
 \textbf{(c) Implemente agora o método de \fitsha. Comente as escolhas feitas para os valores dos parâmetros (e.g., $\sigma_s$) e de operadores (caso alguma modificação em relação ao item (b) tenha sido necessária). Repita o procedimento do item (b) para analisar o comportamento do \fitsha.}
 
-Nesta parte adicionou-se ao algoritmo genético o \fitsha, que consiste em 
-reduzir o fitness do indivíduo i puro por um contador de nichos, que mede a quantidade de indivíduos esse indivíduo i compartilha fitness.
-$$\bar{f}(x_i) = \frac{f(x-i)}{c_i}$$
-Já $c_i$ é determinado através:
-$$c_i = \sum_{j = 0}^{N} sh(d(x_i,x_j))$$
+O \fitsha consiste na técnica de indivíduos "similares" compartilhar o \fitness, de forma que a quantidade de indivíduos em uma localidade ser limitada pelo valor da função de avaliação daquela região.
 
-Onde j, são todos os outros indivíduos da população. Por fim, a função de sharing que será utilizada é dada por:
-$$sh(d(x_i,x_j)) = \begin{cases}
-    1 - (\frac{d(x_i,x_j)}{\sigma_s})^{\aplha_s} &, d(x_i,x_j) < \sigma_s \\
-    0 & , \text{caso contrário}
-\end{cases}$$
+De forma resumida, o compartilhamento acontece por meio da redução do \fitness puro dos indivíduos por um fator proporcional à quantidade de indivíduos similares na população, ou seja, o \fitness compartilhado de um indivíduo $x_i$ resulta da divisão do valor puro da função de avaliação $f(x_i)$ por um contador de nichos $c_i$, que mede o número de indivíduos com os quais $i$ compartilha o valor de \fitness, como dado na equação  \ref{eq:fitsha}.
+\begin{equation}\label{eq:fitsha}
+    \overline{f} (x_i) = \frac{f(x_i)}{c_i}
+\end{equation}
 
-Dado essas informações, é possível adicionar o \fitsha ao algoritmo, entretanto, é necessário explicar que a função para calcular o \fitness se manterá, uma coluna a mais será incluída nos indivíduos para guardar o \fitsha e essa nova função será chamada dentro da seleção por torneio, isso acontecerá, pois ao escolher um indivíduo aleatoriamente para ser o pai da recombinação, será avaliado o \fitsha e dentre os escolhidos para o torneio o vencedor será o indivíduo de maior \fitsha. Assim, a população será diversificada, sendo escolhidos indivíduos de bons fitness de regiões promissoras. O processo pode ser descrito da forma indicada no processo \ref{alg:fitness_share}.
+O contador de nichos $c_i$ é dado por \ref{eq:fitshaci}, sendo $\sh(\cdot)$ a função de compartilhamento.
+\begin{equation}\label{eq:fitshaci}
+    c_i = \sum_{j=1}^N \sh (d(x_i, x_j))
+\end{equation}
+
+Utilizando a expressão dada em \cite{goldberg1987genetic} para a função de compartilhamento, construiu-se o algoritmo apresentado no processo \ref{proc:fitsha} para o \fitsha. No caso, a medida de distância utilizada é a distância euclidiana entre os indivíduos $i$ e $j$ no plano $xy$.  
 \begin{brprocess}[!ht]
-    \cprotect\caption{Operador de \fitsha (\verb|fitness_share(individuo,|
-    \verb|populacao,|\sigma_s, \alpha_s)}
-    \textbf{Entrada}: individuo a ser calculado o fitness sharing e a população que será utilizado para tal cálculo\\
-    \textbf{Parâmetros}: $\sigma_s$ que determina o limiar de similaridade e $\aplha_s$ que denota a forma denota a forma da função de share\\
-    \textbf{Saída}: indivíduo com \fitsha calculado
+    \cprotect\caption{Operador de \fitsha (\verb|fitness_sharing(população,|
+    \verb|sigma, alpha|)}
+    \textbf{Entrada}: população para atualizar o \fitsha\\
+    \textbf{Parâmetros}: $\sigma_s$ e $\alpha_s$ \\
+    \textbf{Saída}: população com a métrica de \fitsha calculada
     \begin{algorithmic}
-        \State sharing $\gets [\;]$
-        \State $i \gets 0$
-        \For{i \textbf{em} len(populacao)}            
-            \State{d $\gets$ distancia(individuo[0],populacao[i][0]}
-            \If{$d < \sigma$}
-                \State {resultado $\gets 1 - (\frac{d(x_i,x_j)}{\sigma_s})^{\aplha_s}$}                
-                \State {sharing $\gets$ resultado}
-            \Else
-                \State {sharing[i] $\gets$ 0}
-            \EndIf       
-        \EndFor        
-        \State fitness-sh $\gets \frac{individuo[1]}{sum(sharing)}$
-        \State {individuo[2] $\gets$ fitness-sh} 
-        \State \textbf{retorna} individuo
+    \For{indivíduo \textbf{em} população}
+        \If{indivíduo[2] = 0}
+            \State similaridade $\gets [\;]$
+            \State $i \gets 0$
+            \While{$i <$ \verb|len(populacao|)}            
+                \State{distância $\gets$ \verb|calc_distância(indivíduo[0], população[i][0]|}
+                \If{distância $< \sigma_s$}
+                    \State {similaridade$[i]$ $\gets 1 - (\frac{\text{distância}}{\sigma_s})^{\alpha_s}$}                
+                \Else
+                    \State {similaridade$[i]$ $\gets$ 0}
+                \EndIf       
+                \State $i \gets i + 1$
+            \EndWhile      
+            \State \fitsha $\gets \frac{\text{individuo}[1]}{\sum(\text{similaridade})}$
+            \State {indivíduo[2] $\gets$ \fitsha}
+        \EndIf
+        \EndFor
+        \State \textbf{retorna} população
     \end{algorithmic}
-    \label{alg:fitness_share}
+    \label{proc:fitsha}
 \end{brprocess}
 
-Essa nova função tem a mais, os seguintes parâmetros:
+Vale mencionar também que, agora, a seleção por torneio é realizada utilizando o \fitsha, assim como a seleção dos indivíduos que irão sobreviver.  
+
+Esse novo método tem os seguintes novos parâmetros:
 \begin{itemize}
     \item $\sigma_s$: limiar de similaridade;
-    \item $\alpha_s$: regulação da forma da função
+    \item $\alpha_s$: regulação da forma da função.
 \end{itemize}
 
-O valor de cada parâmetro foi determinado de maneira exploratória, sendo que os valores escolhidos estão indicados na tabela \ref{tab:valores-parametros2}, vale ressaltar que os valores do espaço de busca já foram pré determinado, e os outros parâmetros continuaram iguais, para fim de comparação entre o uso e sem o uso do método de \fitsha.
+O valor de cada parâmetro foi determinado de maneira exploratória, sendo que os valores escolhidos estão indicados na tabela \ref{tab:valores-parametros2}. Vale ressaltar que, os valores dos outros parâmetros continuam iguais, de forma a realizar uma comparação entre quando o método de \fitsha é utilizado ou não.
 \begin{table}[H]
     \centering
     \begin{tabular}{c c}
     \toprule
-        $\bm{\sigma}$ & 0.4\\
-        $\bm{\alpha}$ & 1\\
+        $\bm{\sigma}_s$ & 0.4\\
+        $\bm{\alpha}_s$ & 1\\
     \bottomrule
     \end{tabular}
-    \caption{Valores dos parâmetros do \fitsha.}
+    \caption{Valores dos novos parâmetros introduzidos.}
     \label{tab:valores-parametros2}
 \end{table}
 
-Executando o algoritmo modificado por 5 vezes, e em cada caso gerando uma nova população inicial aleatória, foram obtidas os seguintes gráficos de curva do fitness médio e melhor fitness e também das curvas de nível com a distribuição da população final. Foram divididas em duas figuras \ref{fig:curvas3} e \ref{fig:curvas4} para que a visualização fosse adequada. 
-
+Implementando o \fitsha utilizando o processo \ref{proc:fitsha} e executando o algoritmo genético cinco vezes, obtiveram-se os resultados apresentados na figura \ref{fig:fitness-distribuicao-sharing}.
 \begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/c1.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/c2.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/c3.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético com \fitsha.}
-\label{fig:curvas3}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/fitness-realizacao-1.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/distribuicao-realizacao-1.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/fitness-realizacao-2.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/distribuicao-realizacao-2.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/fitness-realizacao-3.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/distribuicao-realizacao-3.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/fitness-realizacao-4.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/distribuicao-realizacao-4.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/fitness-realizacao-5.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/fitness-sharing/distribuicao-realizacao-5.pdf}
+    \end{subfigure}
+    \hfill
+    \caption{À esquerda, as curvas de melhor \fitness e \fitness médio em cada realização e, à direita, a distribuição da população final sobre as curvas de nível de $f(x, y)$ nas respectivas realizações.}
+    \label{fig:fitness-distribuicao-sharing}
 \end{figure}
-\begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/c4.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/c5.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético com \fitsha.}
-\label{fig:curvas4}
-\end{figure}
 
- Para esse caso, pode-se notar que, em todas as realizações, o melhor fitness foi sempre maior do que o fitness médio na geração 0, ou seja, em relação ao custo médio da população inicial aleatória. Nas gerações seguintes, vê-se que houve um aumento brusco do fitness médio da população, se assemelhando a uma função logarítmica crescente, indicando que os genes do cromossomo do melhor indivíduo da população inicial estão se propagando pelas gerações e, ao cromossomo se recombinar com o cromossomo de outros indivíduos ao longo das gerações do algoritmo, se torna mais parecido com o da solução ótima. A diferença para o primeiro algoritmo se percebe pela maior distância entre curva do fitness médio e a curva do melhor fitness, ainda que estejam próximas, elas estão mais afastadas do que o algoritmo sem o uso de \fitsha.
+Com o \fitsha, nota-se uma grande mudança na distribuição da população final sobre as curvas de nível de $f(x, y)$, assim como nas curvas de \fitness médio nas realizações, sendo que apenas as curvas de melhor \fitness se mantiveram como antes, indicando que a solução ótima ainda está na população final. Além disso, nas figuras das distribuições, nota-se que as populações finais estão distribuídas ao redor dos máximos locais da superfície, evidenciando o diferente resultado obtido com a implementação do \fitsha.
 
-A questão da maior diversidade fica mais clara quando visualiza-se o gráfico das curvas de nível, é possível notar pela distribuição da população final, que existem mais pontos onde os indivíduos se juntara. Nota-se que existem oito picos com alguma quantidade populacional. 
+Quando observa-se o valor médio e o desvio padrão nas realizações para quando a seleção foi feita com o \fitsha, essa mudança é realçada. No caso, o \fitness médio e o desvio padrão obtido com as cinco realizações quando utiliza-se como critério o \fitsha cai para $1.3957084514\pm 0.4094684937$.
 
-Portanto, pode-se concluir que o algoritmo genético com \fitsha teve um bom desempenho em diversificar a população em mais pontos do que o algoritmo anterior.
+À princípio, analisando de uma forma puramente métrica, o \fitsha dá a impressão de fornecer maus resultados para a população final do algoritmo genético, mas, analisando de um ponto de vista da engenharia, o \fitsha aumenta, em muito, a diversidade da população final. 
+
+Isso é de extrema importância quando a solução ótima tem um custo muito elevado para ser implementada. Agora, quando se tem vários ótimos locais no conjunto final de soluções, encontrar uma que possa ser implementada sem trazer tantos custos para o projeto de engenharia fica consideravelmente mais fácil. Esse não era o caso para o problema em análise, mas é algo que deve ser levado em conta para resolver certos tipos de problemas de engenharia com computação evolutiva. 
+
+Com isso, vê-se a importância de técnicas de \fitsha na resolução de problemas.
 
 \textbf{(d) Introduza, por fim, o esquema de restrição de cruzamento (seguindo o espírito da abordagem de especiação) proposto por \cite{deb1989genetic} Analise o impacto da inserção deste mecanismo na evolução da população e, em última análise, no desempenho do algoritmo.}
 
-Nesta parte adicionou-se ao algoritmo genético o método de especiação, que tende a restringir a reprodução de indivíduos em uma determinada região, fazendo com que os indivíduos se encontre em picos promissores da superfície. Para que isso aconteça, limita-se a região de reprodução através do parâmetro $\sigma_m$. Essa função consiste em escolher pares de pais próximos, caso estejam distantes a seleção do segundo pai vai continuar até que encontre pais dentro desse limiar
+Adicionando o esquema de restrição de cruzamento pela abordagem de especiação no algoritmo genético com \fitsha. 
 
-Dado essas informações, é possível adicionar a restrição de cruzamento, apenas alterando a maneira de selecionar os pais, isto é, quando encontrar dois pais próximos eles serão utilizados para a recombinação, portanto não será alterado a maneira nem de seleção e nem da recombinação. O processo pode ser descrito da forma indicada no processo \ref{alg:especiacao}.
+Esse método funciona restringindo a recombinação entre indivíduos utilizando a distância entre eles, de forma que apenas indivíduos limitados a uma distância de $\sigma_{mate}$ poderão gerar descendentes. No caso, se a distância for maior que $\sigma_{mate}$, um novo sorteio é realizado e, caso toda a população seja varrida para procurar outro par com base na distância, um indivíduo aleatório é sorteado, desconsiderando essa métrica.
+
+Logo, a única alteração que haverá no algoritmo será na recombinação, que agora só será realizada se a distância entre os indivíduos é menor que $\sigma_{mate}$ e, caso contrário, uma nova seleção é feita até encontrar indivíduos compatíveis, considerando também o \fitsha, como mostrado no processo \ref{alg:especiacao}.
 \begin{brprocess}[!ht]
-    \cprotect\caption{Operador de especiação (\verb|especiação(populacao,|
-    \verb|n_populacao,|\verb|q_torneio,|\sigma_m)}
-    \textbf{Entrada}: população e o tamanho da população\\
-    \textbf{Parâmetros}: $\sigma_m$ que determina o limiar de proximidade dos pais e quantidade de indivíduos da população selecionados por torneio\\
-    \textbf{Saída}: pais selecionados para posteriormente recombinação
+    \cprotect\caption{Operador de especiação (\verb|especiacao(individuo_1,|
+    \verb|individuo_2, sigma_mate|)}
+    \textbf{Entrada}: cromossomo dos dois pais\\
+    \textbf{Parâmetros}: $\sigma_{mate}$ \\
+    \textbf{Saída}: cromossomo de ambos os filhos
     \begin{algorithmic}
-        \State pais $\gets [\;]$
-        \State $i \gets 0$
-        \State pai1 $\gets $ torneio-fsh(populacao,n_populacao,q_torneio)
-        \State {pais[0] $\gets$ pai1} 
-        \While{i != 1)}            
-            \State pai2 $\gets $ torneio-fsh(populacao,n_populacao,q_torneio)          
-            \State{d $\gets$ distancia(pai1[0],pai2[i][0]}
-            \If{$d < \sigma_m$}
-                \State {pais[0] $\gets$ pai1}
-                \State {i $\gets$ 1}
-            \EndIf       
-        \EndWhile         
-        \State \textbf{retorna} pais
+        \State distância $\gets$ \verb|calc_distância(individuo_1, individuo_2)|
+        \If{distância $< \sigma_{mate}$}
+            \State \Return 1
+        \Else
+            \State \Return 0
+        \EndIf
     \end{algorithmic}
     \label{alg:especiacao}
 \end{brprocess}
 
-Essa nova função tem a mais, o seguinte parâmetro:
-\begin{itemize}
-    \item $\sigma_m$: limiar de proximidade;
-\end{itemize}
+Para este operador, foi 
 
-O valor do parâmetro de limiar de proximidade foi determinado de maneira exploratória onde $\sigma_m = 0.$, esperava-se que dentro das regiões que cada espécie se encontrou, os indivíduos se encontrassem mais aglomerados nos picos do que aquilo que será notado nos gráficos.
-
-Executando o algoritmo modificado por 5 vezes, e em cada caso gerando uma nova população inicial aleatória, foram obtidas os seguintes gráficos de curva do fitness médio e melhor fitness e também das curvas de nível com a distribuição da população final. Foram divididas em duas figuras \ref{fig:curvas5} e \ref{fig:curvas6} para que a visualização fosse adequada. 
-
+Executando o algoritmo genético com \fitsha e especiação, obtiveram-se os resultados apresentados na figura \ref{fig:fitness-distribuicao-sharing-especiacao}.
 \begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/d1.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/d2.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/d3.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético com especiação.}
-\label{fig:curvas5}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-1.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-1.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-2.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-2.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-3.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-3.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-4.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-4.pdf}
+    \end{subfigure}
+    \hfill
+    \\
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/fitness-realizacao-5.pdf}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figuras/especiacao/distribuicao-realizacao-5.pdf}
+    \end{subfigure}
+    \hfill
+    \caption{À esquerda, as curvas de melhor \fitness e \fitness médio em cada realização e, à direita, a distribuição da população final sobre as curvas de nível de $f(x, y)$ nas respectivas realizações.}
+    \label{fig:fitness-distribuicao-sharing-especiacao}
 \end{figure}
-\begin{figure}[!ht]
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/d4.jpg}
-\end{subfigure}
-\hfill
-\\
-\centering
-\begin{subfigure}{0.8\textwidth}
-    \includegraphics[width=\textwidth]{figuras/d5.jpg}
-\end{subfigure}
-\hfill
-\caption{Curvas do fitness médio da população e do melhor fitness para cada uma das cinco realizações do algoritmo genético com especiação.}
-\label{fig:curvas6}
-\end{figure}
 
-Como já foi dito ao explicar o parâmetro $\sigma_m$, os valores testados, não geraram bons resultados, visto que a ideia era que os indivíduos das regiões estabelecidas pelo algoritmo, se concentrassem mais nos picos das mesmas.
-
-Sendo crítico, esse método deveria trazer mais diversidade para o modelo, mas como se pode observar, não teve grandes melhoras em comparação ao método de \fitsha sozinho. Não sei se o conceito foi bem interpretado ou se a implementação não foi adequada, mas conclui-se que para essa parte o algoritmo não desempenhou o que se esperava.
-
-\textbf{Observação:} Nos gráficos do algoritmo com especiação não contam com os títulos referentes a cada iteração, pois dessa vez não foi rodado em um loop e sim individualmente, pois em loop estava levando muito tempo e acabou travando no meio, para mitigar esse problema, rodando individualmente, se travasse em algum, era só reiniciar e rodar a quantidade que faltasse.
 
 \clearpage
 
@@ -572,6 +602,6 @@ Sendo crítico, esse método deveria trazer mais diversidade para o modelo, mas 
 \bibliography{bib}
 
 \pdfinfo{
-   /Title  (IA707 - EFC II - 199727 e 218762)
+   /Title  (IA707 - EFC II - 199727)
 }
  \end{document}
